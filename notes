@@ -89,4 +89,89 @@ Analyze communications in pairs (ignoring internal to internal, sometimes makes 
 C2 signature of DNScat vs normal traffic sometimes the two look VERY similar.
 
  
+IDS/IPS is not dead and can be useful, but struggles with identifying unique/custom/adverse C2 channel traffic.
 
+# What to Look for First  
+
+1) Persistent Connections
+   - A google search is fine, a google search every 3 minutes with the exact same query is suspicious.
+   - thinking in a time-based format is useful, but can also think in **frequency-based** constraints to the data.  
+   - Easy to identify persistent connections over a long period of time (but beaconing is a bit more difficult)
+   - **Beacon** = short, repetative signal generation. 
+   - R statistical suite, datamash (common tools used to identify)
+   - K-means clustering - works to identify constant-rate beaconing.
+   - Jitter is missed by K-means clustering. **Jitter** = variation in the interval time. 
+   - Session-size analysis helps to address this problem, more on Jitter later in the lecture.
+   - Session-size --> when the C2 issues no command, that session duration is typically always the same. Very indicative. Only differs when the C2 server activates a command to be run.   
+> Attackers have figured out how to maintain a connection to C2 server in random intervals, even when no command is issued, this is used to make the connnection look like a typical connection. "Top Talkers" is now useless, and there only needs to be a few beacons per day. 
+   - Lab will address ways to still detect this. 
+   - Beacon activity is rare, but not necessarily evil. 
+
+2) Signs of Automation
+   - 
+
+
+
+3) IP 2 IP communications
+   - C2 can jump ports and protocols! Immediate re-establishment of connections. 
+
+
+# Investigating Beaconing
+
+Is the IP on a blacklist? Why?
+
+Domain < 7 days old?  
+> Attackers register the domain and do C2/spam etc and then refund the purchase.  
+
+Signature Analysis  
+
+Type of Protocol  
+
+# Threat Hunting Process
+
+Goals: Identify Persistent Connections (typically internal -> external)  
+Subgoal: Be able to justify each connection as business-relevant  
+
+Why start with persistent connections?   
+  - Threat intelligence feeds rely on the same malware being pushed to everyone
+  - Attackers want to monitize their engagement so custom malware coming from original IP addresses is missed.
+
+> IP addresses can host multipe website. Blacklisting a single IP address can result in multiple legitimate sites being blocked. 
+
+  - Digital Ocean/Google/Amazon getting blocked. 
+  - Origin of intelligence can sometimes be questionable. 
+
+## Technique vs. Methodology  
+
+Brocut and grep are solid technical tools that may not scale super well. The approach is the methodology. 
+
+The ability to manually verify an automated solution is valuable, so knowing the technique is worth. 
+
+## Red Team vs Bad Guys
+
+Bad guys typically have an objective beyond accessing the network and setting up a C2. Bad guys need to MONITIZE. 
+
+Red team doesn't care, just needs to demonstrate successful execution. 
+
+> If you can catch the red team, you won't have a problem with the monitizing bad guys. 
+
+# UDP  
+
+Connection duration is calculated based on how frequently the UDP packets travel from same srcIP,dstIP and srcPort,dstPort.
+
+# TCP  
+
+Fairly straightforward for connection duration.  
+
+# ICMP & GRE  
+
+Much more complicated. 
+
+
+# Threat Hunting Air-Gapped Networks  
+
+> Creating profiles for each device on the network to identify what the endpoints interacts with, and on average how much data is sent from the device. 
+
+Actually establish that the system is airgapped.  
+
+-----BREAK 1-----
