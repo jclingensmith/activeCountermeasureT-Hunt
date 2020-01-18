@@ -175,3 +175,118 @@ Much more complicated.
 Actually establish that the system is airgapped.  
 
 -----BREAK 1-----
+
+
+# Finer-Grained Analyis of Beacons
+
+Looking at frequency of connection establishment instead of a time-based x-axis allows the most frequent connections to "stick out like a sore thumb"
+
+Can also look at the time between established connections (again, Jitter a problem)
+
+Session sizes tend to be the same until a C2 activation. 
+  - Also serves as a guideline for what the activity might have been. 
+  - e.g. small activation data probably equals a stored procedure or an "ls" command.
+  - e.g. 6GB transfer = crisis moment, data exfiltration.
+
+## Tshark
+
+```bash
+tshark -r suspect-dns.pcap -T fields -E separator=, -e ip.src -e -ip.dst -e ip.proto -e udp.dstport -e ip.len -e frame.time_delta_displayed ip.src ==192.168.88.2 | head -n 10
+```
+-T: allows the user to specify the fields that need to be displayed
+
+
+# Session Size Analysis w/R
+
+extract the session size, pass it into R for analysis and display the min, max, mean session size. mean ~= min may indicate a heartbeat. If stdev is small and close to the mean - min, could be a heartbeat. 
+
+# Addressing Jitter
+
+A longer duration period will allow for the variance to be normalized. **Looks like a flat line!**  
+
+## Protocols that utilize long session durations by default. 
+
+BGP (Border Gateway Protocol) - opens long session durations
+Chat Programs 
+Dynamic Web Pages (weather) - java applet might query the weather every few minutes
+
+**Look for conditions where beaconing might be normal, and filter these out**  
+
+NTP (Network Time Protocol) - if set at 20 minute schedule, check the time; this looks like a beacon but its completely benign. White list the NTP severs your org is using.
+
+DNS Forwarding - intended DNS misdirecting to stop users from going to malicious sites by accident. Essentially makes all of the IPs on the network talk to a single few DNS servers.
+
+Honeypots setup on the network are effective, but communicate with a SASS service over DNS. 
+
+# Developing Threat Rating Systems  
+
+Major Modifiers: Change the point scale drastically
+Minor Modifiers: Change the points scale by lesser point values
+
+Major Modifier:
+- Beacon Activity / Persistent Connections
+- 60-80 points
+
+Minor Modifiers:
+- <= 30 points
+- Protocol compliance - unexpected app or port usage / confirm business need | non-standard port / 443 raw data 
+- External IP address
+- Internal IP address
+
+
+Negative Points OK - e.g. trusted certificate found
+
+**Zeek has decoders for the 50 most common applications** - these run traffic through all of the decoders until there is a match. 
+
+e.g.
+
+```bash
+cat conn.log | bro-cut id.orig_h id.resp_h id.resp_p proto service orig_ip_bytes resp_ip_bytes
+```
+
+Too many FQDNs (Fully Qualified Domain Names)
+- MS/Google/Amazon = 200-600 FQDNs exposed
+- Typical is about <10
+
+**Greater than 1000 FQDNs is suspicious** 
+
+In the remote domain if there are a ton of FQDNs it means that domain has been registering tons of C2 servers to be resolved to. Typically DNS b/c environments almost always let DNS out. 
+
+# Detecting C2 over DNS  
+
+Capture all DNS traffic
+
+- The longer the capture time the better. 
+- Since they need to send a command over the DNS response, they need to avoid DNS caching. So they rotate between a bunch of DNS FQDN. 
+
+```bash
+tshark -r thunt-lab.pcapng -T fields -e dns.qry.name | sort | uniq | rev | cut -d "." -f 1-2 | rev | sort | uniq -c | sort -rn | head -10
+```
+
+rev --> reverse the order of the characters
+
+> this type of command can be run against Zeek but also against raw pcaps that get rotated. 
+
+## Bonus DNS  
+
+See which hosts actually are visiting the domains with the most FQDNs. If one host-highly likely talking to C2.  
+
+----BREAK 2-----
+
+Passer - activeCM open source tool that inventories the system. - all passive. active version of the traffic is also to be released.  
+
+HIPAA - vendors sometimes maintain access to systems via remote access team viewer etc, RITA and AI-hunter cna aid in identifying these violations.  
+
+**ELK will be integrated with RITA**  
+- Will be focused on sysmon data to tie alerts/IPs/ports to executables that initiate connections. 
+- Called Silky
+
+
+**HELK** is a thing and is elasticsearch with AI and hunting  
+
+
+
+
+
+
+
