@@ -6,7 +6,7 @@ github.com/rmccarth/activecountermeasurest-hunt.git
 
 # Course Information
 
-Presenters: John Strand, Shelby, Bill Sterns (www.sterns.org), Keith
+Presenters: John Strand, Shelby, Bill Sterns (www.sterns.org), Keith, Chris
 
 ACM Website: https://www.activecountermeasures.com
 
@@ -284,9 +284,36 @@ HIPAA - vendors sometimes maintain access to systems via remote access team view
 
 **HELK** is a thing and is elasticsearch with AI and hunting  
 
+---END BREAK 2---
 
+Looking for unique HTTP user agents:  
 
+- Can filter user agent strings by what you know exists in your network.  
 
+MORE MODIFIERS
+==============
 
+Modern C2 uses HTTPS protocol, SSL signing key should all be unique, if not unique, flag. Can hash the SSL signing keys and compare to known list. - minor modifier 
+
+Invalid Certificate Checks  - if the long connection is signed with an invalid certificate, flag and add minor modifier. 
+
+Check target IP address (ASN, geolocation, IP delegation, PTR Records)
+Is target organization recognized?  
+
+**Found a beacon? Check what other hosts are talking to that IP address, maybe they are also compromised? maybe they are C2 communication backups**  
+
+# Internal System Monitoring
+
+Internal IP's may be acting maliciously, a tool like Carbon Black may allow the organization to track DHCP assignments and what each host is running/supposed to be doing. 
+
+# Passer - Open Source Tool available from activeCM.  
+
+Works inline and identifies the lay of the land by watching the traffic that is going by.
+
+e.g. Passer identifies the 10.10.10.10 host as having port 443 open since it is notices traffic from 20.20.20.20 going to 10.10.10.10 over port 443 with a syn ack response. 
+
+Windows Internal Monitoring
+
+sysmon - selky will integrate sysmon with applications that connect to external IPs. 
 
 
