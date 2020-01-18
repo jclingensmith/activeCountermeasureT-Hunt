@@ -283,6 +283,7 @@ HIPAA - vendors sometimes maintain access to systems via remote access team view
 
 
 **HELK** is a thing and is elasticsearch with AI and hunting  
+https://github.com/Cyb3rWard0g/HELK
 
 ---END BREAK 2---
 
@@ -316,4 +317,49 @@ Windows Internal Monitoring
 
 sysmon - selky will integrate sysmon with applications that connect to external IPs. 
 
+# After Assigning Points
 
+Add up the points for the host, and disposition the IP. 
+Safe -> add to whitelist
+Scary -> trigger incident response
+Still unsure -> collect more data
+
+# Threat Scoring System Quick Review:  
+
+Points Possible (1-100)
+1) Persistent Connections
+	Internal to External
+	Beacons
+	Long Cnx
+	Major Score Modifier
+
+2) Analyze Protocol & Endpoint Attributes
+	Evidence of untrusted communications
+	Minor score modifiers
+
+# tcpdump
+
+to capture pcaps when system boots configure script to run at startup:  
+
+```bash
+mkdir -p /opt/pcaps
+screen -S capture -t capture -d -m bash -c "tcpdump -ieth0 -G 3600 -w '/opt/pcaps/`hostname -s`.%Y%m%d%H%M%S.pcap' -z bzip2"
+```
+
+# tshark - user agents
+
+```bash
+tshark -r sample.pcap -T fields -e http.user_agent tcp.dstort==80 | sort | uniq -c | sort -n | head -10
+```
+
+# RITA  
+
+designed to specifically go after command and control. 
+
+can correlate output with open source threat feeds
+can correlate with alexa top 1 million sites
+
+spamhaus
+known c2 servers
+feed consolidation
+ 
