@@ -1,19 +1,92 @@
 ActiveCounterMeasures Threat Hunting Exercise
 =============================================
 
+github.com/rmccarth/activecountermeasurest-hunt.git
+
+
 # Course Information
 
-Presenters: John (tentative), Shelby, Bill Sterns (www.sterns.org), Keith
+Presenters: John Strand, Shelby, Bill Sterns (www.sterns.org), Keith
 
 ACM Website: https://www.activecountermeasures.com
 
 VM Download Location: https://www.activecountermeasures.com/cyber-threat-hunting-training-course/
 
+username:password
+thunt:aybab2u
+
+
 Slide Deck PDF Location: https://www.activecountermeasures.com/cyber-threat-hunting-training-course/
+
+Course participants received a threat hunting level 1 certificate upon completion.
 
 # Job Posting Information
 
 ACM does not post job openings anywhere - applicants are considered based on referral.
 
+# Understanding Phishing Email Mentality
 
+Change mentality of the user around phishing emails. Provide reward incentives for being the first person to flag or tag an email as a phish. 
+
+## Lecture Logistics
+
+
+5 modules, 45 minutes each
+20 minute break after module 2 and 4
+
+
+
+# Basics of C2
+
+Theme: "Why Do Attackers Infect Networks?"
+
+
+1) Historically - Mass Propagation
+2) Now - Monetization!   "Bad Guy with a Business Model"
+	- own internal systems
+
+Direct call-backs to origin IP makes attribution too easy, so setup C2. 
+
+Host "checks in" with the C2 server to see if there are any commands waiting for the host. If yes: execute command.
+
+**Email makes a great C2 server!**
+
+## Problem Space
+
+Dwell-time is on average about 6 months and orgs typically discover breach from a 3rd party. 
+
+Reference: 2019 Verizon Breach Report
+
+0 companies that had PoS device compromise were self-discovered breaches.
+
+Need to cut down dwell-time
+
+**threat hunting** = understand normal internal network patterns to detect bad actors
+
+## State of Security Today
+
+tooling today typically surround preventing access and incident response
+- RITA identifies the gap of detecting when controls fail, and need to trigger incident response.
+
+**syslog was not designed for security** 
+  - designed in 1988
+  - 2 components (type of log entry aka 'facility', and severity)
+  - **no** security related log entry, the severity is not related to security
+  - top level of severity '2/critical' = failure in the systems primary applicatino e.g. crash.
+
+**Hunting C2 Not Enough**
+ - Randomware attacks, logic bombs, self-propagating worms - some forms of profit do not require a C2 server.
+
+## Where to Start
+
+Full PCAP - highest level of detail, expensive to store the data. May limit organization to hour or two timeframes. **C2 may be activated every few hours** 
+Zeek - can capture larger timeframes with less packet-level detail (essentially netflow)
+
+Analyze communications in pairs (ignoring internal to internal, sometimes makes sense since system-to-system communications within the network can generate a lot of false positivs e.g. the use of powershell)
+
+**Suricata**  
+
+C2 signature of DNScat vs normal traffic sometimes the two look VERY similar.
+
+ 
 
