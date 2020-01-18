@@ -9,9 +9,68 @@ Then a hint was given to help with some sugested commands.
 
 Finally, the exact commands were given and a complete wakthrough of the solution was given.  
 
+J3 plugin needs installed to hash certificates since Zeek does not hash by default
+
 =====
 LAB 1
 =====
 
+To retrieve the src and dst IP addresses of the longest connection times in the traffic:  
+> Super long connection times can be indictative of an established malicious connection and can be a source of adding major points to the risk score. **Define cutoffs!**   
 
+
+```bash
+cat conn.log | bro-cut duration id.orig_h id.resp_h | sort -k 1 -rn | head -10
+```
+
+> note: to get information about the packet capture, utilize tcpdump
+
+```bash
+tcpdump -tttt -n -r <filename> | awk 'NR==1; END{print}'
+
+Find the longest talk-time (datamash):  
+
+```bash 
+cat conn.log | bro-cut duration id.orig_h id.resp_h | grep -v '-' | datamash -g 2,3 sum 1 | sort -k 3 -rn | head -10
+```
+grep -v '-' removes some fields that might have bad characters and no connection duration because of a port rejection etc. 
+
+datamash -g 2,3 sum 1 means to match on the ip addresses and see if there are any that are the same, if they are, add the connection durations for those ip address matches
+
+sort -k 3 -rn sorts the 3rd column in reverse order (default is lowest to highest)
+
+head -10 lists the top 10 values
+
+
+## Identifying Beaconing Activity
+
+**Finding the Top 3 as Possible Beacons**  
+```bash
+cat conn.log | bro-cut id.orig_h id.resp_h orig_bytes | sort | uniq -c | sort -rn | head
+```
+
+The important piece here is the uniq -c --> this takes the unique ip addresses, but doesn't eliminate any, instead it combines them into one and counts their occurances. This gives us things that are speaking **frequently** in the network. Very useful.  
+
+> Investigating the 192.168.88.2 host further to check to see if it is truly a beacon. 
+
+```bash
+cat conn.log | bro-cut id.orig_h id.resp_h orig_bytes | grep 192.168.88.2 | sort | uniq -c | sort -rn | head
+```
+
+## Hunting for Possible C2 Activity
+
+Counting up unique subdomains belonging to a single domain! So cool...  
+
+```bash
+cat dns.log | bro-cut query | sort | uniq | rev | cut -d "." -f 1-2 | sort | uniq -c | sort -rn | head
+```
+
+# Getting It All Done w/RITA
+
+rita show-databases                  simply shows the loaded databases
+rita show-long-connections lab1      lists the longest connections, pipe to head to see the top 10, or cut, however.
+rita show-beacons lab1		     shows the beaconing activity and gives it a score 0-1 with 1 being a perfect beacon
+rita show-exploded-dns lab1 	     shows the domains with the most subdomains, and lists how many there are of each
+
+any rita command -H creates a very nice view of the data. 
 
